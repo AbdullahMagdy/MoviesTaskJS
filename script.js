@@ -1,45 +1,62 @@
+
 'use strict'
 
 
-
-const subString = ''
-const arrayToSort = [''];
+const subString = "spider"
+const arrayToSort = [];
 const index = 0;
 
-const getMovieTitles = (subString , myCallBack) => {
-    
 
-let url = 'https://jsonmock.hackerrank.com/api/movies/search/?Title=' + subString;
+function numOfPages(){
 
-fetch(url)
-.then(res => res.json())
-.then(data => {
+  let url = 'https://jsonmock.hackerrank.com/api/movies/search/?Title='+subString;
 
-const entries = data['data']
-entries.forEach((element, index, array) => {
-document.getElementById('div1').innerHTML += element.Title  +': ' + index + '<br/>';
-arrayToSort[index] = element.Title;
-index++;
-})
+            return new Promise( resolve => {
+              setTimeout( function() {
+              resolve(fetch(url).then(result => result.json()).then(data => data['total']))
 
- myCallBack(arrayToSort);
-
-})
-.catch(error => {
-console.log(error.message);
-})
-
+            } , 1000) })
 
 }
 
-function sortArrayFn(arrayToSort) {
-    arrayToSort.sort();
-    for(const v of arrayToSort ) {
-    document.getElementById('div2').innerHTML += v + '<br/>';
+async function getMoviesPerPages() {
+
+
+    const totalPages = await numOfPages();
+
+    for(var i = 1 ; i <= totalPages ; i++ ){
+
+            let url = 'https://jsonmock.hackerrank.com/api/movies/search/?Title='+subString+'&page=' + i;
+            return new Promise( resolve => {
+
+              setTimeout( function() {
+              resolve(fetch(url).then(result => result.json()).then(data => data['data']))
+
+            } , 1000) })
+
+    }
 }
+
+async function fetchData(){
+
+  const result = await getMoviesPerPages();
+
+  for(const record of result){
+    arrayToSort.push(record.Title);
+  }
+
+  arrayToSort.sort();
+
+  for(const sortedTitle of arrayToSort){
+  console.log(sortedTitle);
+  }
+
 }
 
 
-getMovieTitles("behind" , sortArrayFn);
+fetchData();
+
+
+
 
 
